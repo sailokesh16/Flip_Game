@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Flip Card Game</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div class="game-container" id="game-board">
+         Cards will be dynamically added here using JavaScript 
+    </div>
+
+    <script src="./main.js"></script>
+</body>
+<body>
+    <section>
+        
+    </section>
+</body>
+</html>
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/* Basic styling for the game container and cards */
+
+.game-container {
+    display: grid;
+    grid-template-columns: repeat(4, 100px);
+    gap: 10px;
+    justify-content: center;
+}
+
+.card {
+    width: 100px;
+    height: 100px;
+    background-color: #af1212;
+    cursor: pointer;
+    transform: perspective(600px) rotateY(0deg);
+    transition: transform 0.5s;
+}
+
+.card.flipped {
+    transform: rotateY(180deg);
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Array of card values (can be numbers, emojis, etc.)
+const cardValues = ["🍎", "🍌", "🍎", "🍌"]; // Make sure pairs exist
+
+// Select the game board
+const gameBoard = document.getElementById("game-board");
+
+// Function to shuffle cards
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+// Function to create and render cards
+function initializeGame() {
+    const shuffledValues = shuffle([...cardValues]);
+    shuffledValues.forEach(value => {
+        const card = document.createElement("div");
+        card.classList.add("card");
+        card.dataset.value = value;
+        card.addEventListener("click", flipCard);
+        gameBoard.appendChild(card);
+    });
+}
+
+// Variables to track the flipped cards
+let firstCard, secondCard;
+let hasFlippedCard = false;
+
+// Flip card function
+function flipCard(event) {
+    const card = event.target;
+    card.classList.add("flipped");
+    card.textContent = card.dataset.value; // Show the card's value
+
+    if (!hasFlippedCard) {
+        // First card clicked
+        hasFlippedCard = true;
+        firstCard = card;
+    } else {
+        // Second card clicked
+        hasFlippedCard = false;
+        secondCard = card;
+
+        // Check for match
+        checkForMatch();
+    }
+}
+
+// Function to check if two cards match
+function checkForMatch() {
+    if (firstCard.dataset.value === secondCard.dataset.value) {
+        // Match found
+        disableCards();
+    } else {
+        // No match, hide cards after a short delay
+        setTimeout(unflipCards, 1000);
+    }
+}
+
+// Disable matched cards
+function disableCards() {
+    firstCard.removeEventListener("click", flipCard);
+    secondCard.removeEventListener("click", flipCard);
+}
+
+// Unflip cards if they don't match
+function unflipCards() {
+    firstCard.classList.remove("flipped");
+    firstCard.textContent = ""; // Hide the value
+    secondCard.classList.remove("flipped");
+    secondCard.textContent = ""; // Hide the value
+}
+
+// Initialize the game on load
+initializeGame();
